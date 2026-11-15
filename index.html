@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Report Files Portal</title>
+<style>
+:root{--blue:#2563eb;--bg:#f8fafc;--border:#e2e8f0;--muted:#64748b;--text:#0f172a}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:#fff;border-bottom:1px solid var(--border)}.wrap{max-width:1200px;margin:auto;padding:22px}
+.brand{display:flex;align-items:center;gap:14px}.logo{width:46px;height:46px;border-radius:14px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:24px}
+h1{font-size:24px;margin:0 0 5px}.sub{margin:0;color:var(--muted);font-size:14px}.selectors{background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;box-shadow:0 2px 8px #0f172a0d}
+label{font-size:14px;font-weight:bold;display:block;margin-bottom:8px}select{width:100%;height:48px;border:1px solid #cbd5e1;border-radius:12px;padding:0 12px;background:#fff;font-size:14px}
+.empty{margin-top:26px;background:#fff;border:1px dashed #cbd5e1;border-radius:18px;min-height:370px;display:grid;place-items:center;text-align:center;padding:30px}.empty h2{margin:10px}.empty p{color:var(--muted);max-width:520px;line-height:1.6}
+.content{margin-top:26px;display:grid;grid-template-columns:280px 1fr;gap:22px}.files h2{font-size:18px;margin:0 0 4px}.count{font-size:13px;color:var(--muted);margin-bottom:14px}.file-btn{width:100%;text-align:left;padding:16px;border:1px solid var(--border);background:#fff;border-radius:14px;margin-bottom:10px;cursor:pointer}.file-btn.active{border-color:var(--blue);background:#eff6ff;box-shadow:0 0 0 3px #dbeafe}.file-title{font-weight:bold}.file-type{font-size:12px;color:var(--muted);margin-top:5px}
+.viewer{background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden}.viewer-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}.viewer-head h3{margin:0 0 4px}.meta{font-size:12px;color:var(--muted)}.actions{display:flex;gap:8px}.btn{padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:#fff;color:var(--text);text-decoration:none;font-size:13px}.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}iframe{width:100%;height:70vh;min-height:540px;border:0;background:#f1f5f9}.hidden{display:none}
+@media(max-width:800px){.selectors,.content{grid-template-columns:1fr}.viewer-head{align-items:flex-start;flex-direction:column}iframe{min-height:450px}}
+</style>
+</head>
+<body>
+<header><div class="wrap brand"><div class="logo">▣</div><div><h1>Course Report Files Portal</h1><p class="sub">Select your name and course to view course results and survey files.</p></div></div></header>
+<main class="wrap">
+<section class="selectors"><div><label for="staff">Staff member</label><select id="staff"><option value="">Choose your name</option></select></div><div><label for="course">Course</label><select id="course" disabled><option value="">Choose your name first</option></select></div></section>
+<section id="empty" class="empty"><div><div style="font-size:48px;color:#cbd5e1">⌕</div><h2>Your files will appear here</h2><p>Select the staff member, then select the course. Available PDF files will appear and can be read without leaving the page.</p></div></section>
+<section id="content" class="content hidden"><aside class="files"><h2>Available files</h2><div id="count" class="count"></div><div id="fileList"></div></aside><section class="viewer"><div class="viewer-head"><div><h3 id="activeTitle"></h3><div id="meta" class="meta"></div></div><div class="actions"><a id="openBtn" class="btn" target="_blank">Open</a><a id="downloadBtn" class="btn primary" download>Download</a></div></div><iframe id="pdfViewer" title="PDF viewer"></iframe></section></section>
+</main>
+<script>
+const portalData={
+ "Dr. Ahmed Hassan":{
+  "Discrete Mathematics":[{title:"Course Results",type:"Results PDF",url:"pdfs/ahmed-hassan/discrete-mathematics/course-results.pdf"},{title:"Course Survey Results",type:"Survey PDF",url:"pdfs/ahmed-hassan/discrete-mathematics/course-survey.pdf"}],
+  "Digital Circuits":[{title:"Course Results",type:"Results PDF",url:"pdfs/ahmed-hassan/digital-circuits/course-results.pdf"},{title:"Course Survey Results",type:"Survey PDF",url:"pdfs/ahmed-hassan/digital-circuits/course-survey.pdf"}]
+ },
+ "Dr. Sara Mohamed":{
+  "Programming I":[{title:"Course Results",type:"Results PDF",url:"pdfs/sara-mohamed/programming-1/course-results.pdf"},{title:"Course Survey Results",type:"Survey PDF",url:"pdfs/sara-mohamed/programming-1/course-survey.pdf"}],
+  "Database Systems":[{title:"Course Results",type:"Results PDF",url:"pdfs/sara-mohamed/database-systems/course-results.pdf"},{title:"Course Survey Results",type:"Survey PDF",url:"pdfs/sara-mohamed/database-systems/course-survey.pdf"}]
+ }};
+const staff=document.getElementById('staff'),course=document.getElementById('course'),empty=document.getElementById('empty'),content=document.getElementById('content'),fileList=document.getElementById('fileList');
+Object.keys(portalData).forEach(n=>staff.add(new Option(n,n)));
+staff.onchange=()=>{course.innerHTML='<option value="">Choose a course</option>';course.disabled=!staff.value;if(staff.value)Object.keys(portalData[staff.value]).forEach(c=>course.add(new Option(c,c)));empty.classList.remove('hidden');content.classList.add('hidden')};
+course.onchange=()=>{if(!course.value)return;const files=portalData[staff.value][course.value];document.getElementById('count').textContent=`${files.length} PDF files for ${course.value}`;fileList.innerHTML='';files.forEach((f,i)=>{const b=document.createElement('button');b.className='file-btn'+(i===0?' active':'');b.innerHTML=`<div class="file-title">📄 ${f.title}</div><div class="file-type">${f.type}</div>`;b.onclick=()=>showFile(f,b);fileList.appendChild(b)});empty.classList.add('hidden');content.classList.remove('hidden');showFile(files[0],fileList.firstChild)};
+function showFile(f,b){document.querySelectorAll('.file-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('activeTitle').textContent=f.title;document.getElementById('meta').textContent=`${staff.value} • ${course.value}`;document.getElementById('openBtn').href=f.url;document.getElementById('downloadBtn').href=f.url;document.getElementById('pdfViewer').src=f.url+'#toolbar=1&navpanes=0'}
+</script>
+</body></html>
